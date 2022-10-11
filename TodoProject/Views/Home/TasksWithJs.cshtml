@@ -1,0 +1,109 @@
+﻿
+@{
+    ViewData["Title"] = "TasksWithJs";
+}
+
+<h1>TasksWithJs</h1>
+<div class="card card-body d-flex">
+    <div class="form d-flex">
+    <div class="form-group"><input type="text" id="txtName" class="form-control" /></div>
+    <button class="btn btn-info mx-2" onclick="addTask()">Add</button>
+    </div>
+</div>
+<div class="card card-body">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Task</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function() {
+    getTasks();
+});
+function getTasks() {
+    $.get("https://localhost:7271/api/Todo", function(data, status) { 
+        var html = "";
+        
+        for (let index = 0; index < data.length; index++) {
+            let record = data[index];
+            html += `<tr><td>${record.id}</td><td>${record.name}</td><td>` + (record.isDone?`<button type="button" class='btn btn-success' onclick="taskDoneUnDone(${record.id})">Undone</button>`:`<button type="button" class='btn btn-success' onclick="taskDoneUnDone(${record.id})">Done</button>`) + `
+            <button type="button" class='btn btn-danger' onclick="deleteTask(${record.id})">Delete</button></td></tr>`
+        }
+        document.getElementById('data').innerHTML = html;
+    })
+}
+
+function addTask()
+{
+    var task = {
+        Name: $("#txtName").val(),
+        isDone: false
+    };
+    $.ajax({
+        url:"https://localhost:7271/api/Todo/Add",
+        method: "POST",
+        data: JSON.stringify(task),
+        dataType: 'json',
+        contentType: "application/json",
+         success: function(result,status,jqXHR ){
+             getTasks();
+         },
+         error(jqXHR, textStatus, errorThrown){
+             console.log(errorThrown);
+         }
+    })
+}
+
+function taskDoneUnDone(id){
+    
+    var task = {
+        Id: id,
+        Name: 'test',
+        isDone: false
+    };
+    $.ajax({
+        url:"https://localhost:7271/api/Todo/doneundone",
+        method: "POST",
+        data: JSON.stringify(task),
+        dataType: 'json',
+        contentType: "application/json",
+         success: function(result,status,jqXHR ){
+             getTasks();
+         },
+         error(jqXHR, textStatus, errorThrown){
+             console.log(errorThrown);
+         }
+    })
+}
+
+function deleteTask(id){
+    
+    var task = {
+        Id: id,
+        Name: 'test',
+        isDone: false
+    };
+    $.ajax({
+        url:"https://localhost:7271/api/Todo/Remove",
+        method: "POST",
+        data: JSON.stringify(task),
+        dataType: 'json',
+        contentType: "application/json",
+         success: function(result,status,jqXHR ){
+             getTasks();
+         },
+         error(jqXHR, textStatus, errorThrown){
+             console.log(errorThrown);
+         }
+    })
+}
+</script>
